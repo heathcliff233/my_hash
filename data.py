@@ -16,17 +16,17 @@ class TrainerDataset(Dataset):
         return 500000
 
     def __getitem__(self, index):
-        rand_set = torch.randint(0,21,(self.npair+2, 3))
+        rand_set = torch.randint(0, 21, (self.npair + 2, 3))
         psample = rand_set[-2:]
         nsample = rand_set[:-2]
-        qv = F.one_hot(psample[0],num_classes=21)
-        pos = psample[1][0]%3
+        qv = F.one_hot(psample[0], num_classes=21)
+        pos = psample[1][0] % 3
         av = qv.detach().clone()
         av[pos] *= 0
         av[pos][psample[1][1]] = 1
         res = torch.stack([qv, av], dim=0)
         nv = F.one_hot(nsample, num_classes=21)
-        bt = torch.cat((res,nv), dim=0)
+        bt = torch.cat((res, nv), dim=0)
         return bt
 
 
