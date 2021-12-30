@@ -13,7 +13,7 @@ def train(
     eval_per_step=10,
     use_wandb=False,
     device="cuda:0",
-    acc_step=1,
+    acc_step=10,
 ):
     if use_wandb:
         wandb.watch(model, log_freq=eval_per_step)
@@ -24,6 +24,8 @@ def train(
         model.train()
 
         for cnt, toks in enumerate(train_loader, start=1):
+            toks = toks.squeeze(0)
+            toks.transpose_(1,2)
             toks = toks.cuda(non_blocking=True)
 
             if cnt % eval_per_step == 0:
@@ -34,9 +36,11 @@ def train(
                     # acc = acc.view(-1).cpu().item()
                     # print("acc: ", acc)
                     print("loss" + str(tot_loss / eval_per_step))
-                    wandb.log(
-                        {"train/train-acc": ac2}
-                    )  # , "train/eval-acc": acc,"train/loss": tot_loss/eval_per_step})
+                    print("acc:",ac2)
+                    if use_wandb:
+                        wandb.log(
+                            {"train/train-acc": ac2}
+                        )  # , "train/eval-acc": acc,"train/loss": tot_loss/eval_per_step})
                     tot_loss = 0
                 model.train()
 
@@ -57,6 +61,9 @@ def evaluate(model, loader, threshold=0.7):
     correct = torch.tensor([0]).cuda()
     total = torch.tensor([0]).cuda()
     for i, toks in enumerate(loader):
+        toks = toks.squeeze(0)
+        toks.transpose_(1,2)
+        toks = toks.cuda(non_blocking=True)
         if i > 40:
             break
         right, num = model.get_acc(model(toks))
@@ -69,6 +76,8 @@ def do_embedding(model, loader, path, device="cuda:0"):
     model.eval()
     res = []
     for i, (ids, toks) in enumerate(loader):
+        toks = toks.squeeze(0)
+        toks.transpose_(1,2)
         toks = toks.to(device)
         with torch.no_grad():
             out = model.forward_once(toks)

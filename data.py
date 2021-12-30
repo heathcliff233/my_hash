@@ -8,12 +8,12 @@ import random
 
 
 class TrainerDataset(Dataset):
-    def __init__(self, k=3):
+    def __init__(self, k=3, npair=62):
         self.k = k
-        self.npair = 10
+        self.npair = npair
 
     def __len__(self):
-        return 500000
+        return 50000
 
     def __getitem__(self, index):
         rand_set = torch.randint(0, 21, (self.npair + 2, 3))
@@ -27,7 +27,7 @@ class TrainerDataset(Dataset):
         res = torch.stack([qv, av], dim=0)
         nv = F.one_hot(nsample, num_classes=21)
         bt = torch.cat((res, nv), dim=0)
-        return bt
+        return bt.float()
 
 
 class SingleConverter(object):

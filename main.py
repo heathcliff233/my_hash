@@ -8,12 +8,12 @@ from data import TrainerDataset
 from train import train, evaluate
 
 DISTRIBUTED = True
-TRBATCHSZ = 64
-EVBATCHSZ = 64
+TRBATCHSZ = 1
+EVBATCHSZ = 1
 threshold = 0.7
-eval_per_step = 30
+eval_per_step = 500
 lr = 1e-5
-use_wandb = True
+use_wandb = False
 
 
 def init_wandb():
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         init_wandb()
 
     model = model.to(device)
-    train_set = TrainerDataset(k=3)
+    train_set = TrainerDataset(k=3, npair=62)
     # eval_set = MyDataset(evnames, evlines)
 
     train_loader = DataLoader(dataset=train_set, batch_size=TRBATCHSZ, shuffle=False)
