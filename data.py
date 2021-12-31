@@ -30,6 +30,41 @@ class TrainerDataset(Dataset):
         return bt.float()
 
 
+class FtDataset(Dataset):
+    def __init__(self, k=3, npair=62):
+        self.k = k
+        self.npair = npair
+
+    def __len__(self):
+        return 50000
+
+    def gen_diff2(self, base_vec, rand_seeds):
+        mvec = base_vec.detach().clone()
+        pivot1 = rand_seeds[0] % 3
+        pivot2 = (pivot1 + 1) % 3
+        mvec[pivot1] *= 0
+        mvec[pivot2] *= 0
+        mvec[pivot1][rand_seeds[1]] = 1
+        mvec[pivot2][rand_seeds[2]] = 1
+        return mvec
+
+    def __getitem__(self, index):
+        rand_set = torch.randint(0, 21, (self.npair + 2, 3))
+        psample = rand_set[-2:]
+        nsample = rand_set[:-2]
+        qv = F.one_hot(psample[0], num_classes=21)
+        pos = psample[1][0] % 3
+        av = qv.detach().clone()
+        av[pos] *= 0
+        av[pos][psample[1][1]] = 1
+        res = torch.stack([qv, av], dim=0)
+        nv = torch.cat(
+            [self.gen_diff2(qv, nsample[i]) for i in range(len(nsample))], dim=0
+        )
+        bt = torch.cat((res, nv), dim=0)
+        return bt.float()
+
+
 class SingleConverter(object):
     """Callable to convert an unprocessed (labels + strings) batch to a
     processed (labels + tensor) batch.
