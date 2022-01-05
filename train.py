@@ -13,7 +13,7 @@ def train(
     eval_per_step=10,
     use_wandb=False,
     device="cuda:0",
-    acc_step=10,
+    acc_step=1,
 ):
     if use_wandb:
         wandb.watch(model, log_freq=eval_per_step)
@@ -25,18 +25,17 @@ def train(
 
         for cnt, toks in enumerate(train_loader, start=1):
             toks = toks.squeeze(0)
-            toks.transpose_(1, 2)
             toks = toks.cuda(non_blocking=True)
 
             if cnt % eval_per_step == 0:
                 if cnt % (eval_per_step * 1) == 0:
                     # acc = evaluate(model, eval_loader, threshold)
-                    ac2 = evaluate(model, train_loader, threshold)
+                    ac2 = evaluate(model, eval_loader, threshold)
 
                     # acc = acc.view(-1).cpu().item()
                     # print("acc: ", acc)
                     print("loss" + str(tot_loss / eval_per_step))
-                    print("acc:", ac2)
+                    print("acc: %.8f"%ac2.cpu().item())
                     if use_wandb:
                         wandb.log(
                             {"train/train-acc": ac2}
@@ -62,11 +61,10 @@ def evaluate(model, loader, threshold=0.7):
     total = torch.tensor([0]).cuda()
     for i, toks in enumerate(loader):
         toks = toks.squeeze(0)
-        toks.transpose_(1, 2)
         toks = toks.cuda(non_blocking=True)
-        if i > 40:
+        if i > 4000:
             break
-        right, num = model.get_acc(model(toks))
+        right, num = model.get_real_acc(model(toks))
         correct += right
         total += num
     return correct / total
@@ -88,4 +86,4 @@ def do_embedding(model, loader, path, device="cuda:0"):
 
 
 def save(model, epoch):
-    torch.save(model.state_dict(), "./larger_batch/" + str(epoch) + ".pth")
+    torch.save(model.state_dict(), "./saved_models/larger_batch/" + str(epoch) + ".pth")
