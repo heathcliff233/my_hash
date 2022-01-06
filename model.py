@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 
 def dot_product_scores(q_vectors, ctx_vectors):
@@ -22,14 +23,29 @@ def residule_score(q_vectors, ctx_vectors):
     return -1.0 * (res**2).sum(-1)
 
 class MyEncoder(nn.Module):
-    def __init__(self, k=3, in_channels=21, out_channels=1000):
+    def __init__(self, k=3, in_channels=21, out_channels=21**3):
         super(MyEncoder, self).__init__()
         self.hash1 = nn.Conv1d(
             in_channels=in_channels, out_channels=out_channels, kernel_size=k
         )
+        self.hash2 = nn.Conv1d(
+            in_channels=in_channels, out_channels=out_channels, kernel_size=k
+        )
+        self.hash3 = nn.Conv1d(
+            in_channels=in_channels, out_channels=out_channels, kernel_size=k
+        )
 
     def forward(self, x):
-        x = self.hash1(x)
+        x1 = self.hash1(x)
+        x2 = self.hash2(x)
+        x3 = self.hash3(x)
+        x = x1 * x2 * x3
+        
+        #eps = 1e-3
+        #holder = torch.cuda.FloatTensor(x.size())
+        #torch.randn(x.size(), out=holder)
+        #x += eps * holder
+        
         x = F.normalize(x, p=2, dim=1)
         return x
 
@@ -47,6 +63,9 @@ class MyEncoder(nn.Module):
             label.to(sm_score.device),
             reduction="mean"
         )
+        #mask = torch.ones(sim_mx.shape) - torch.eye(sim_mx.shape[0])
+        #out = mask.cuda() * sim_mx
+        loss2 = sim_mx.pow(2).exp().mean()
         #dist_mx = residule_score(qebd, cebd)
         #ds_score = F.log_softmax(dist_mx/tau, dim=1)
         #loss2 = F.nll_loss(
@@ -54,7 +73,7 @@ class MyEncoder(nn.Module):
         #    label.to(ds_score.device),
         #    reduction="mean"
         #)
-        return loss1
+        return loss2 #+ loss1
         '''
         qebd = ebd[0]
         qebd = qebd.reshape((1, -1))

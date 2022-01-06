@@ -86,4 +86,4 @@ def do_embedding(model, loader, path, device="cuda:0"):
 
 
 def save(model, epoch):
-    torch.save(model.state_dict(), "./saved_models/larger_batch/" + str(epoch) + ".pth")
+    torch.save(model.state_dict(), "./saved_models/cont/" + str(epoch) + ".pth")

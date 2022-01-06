@@ -14,7 +14,7 @@ class TrainerDataset(Dataset):
         self.npair = npair
 
     def __len__(self):
-        return 500
+        return 50
 
     def __getitem__(self, index):
         rand_set = torch.randint(0, 21, (self.npair*2, 3))

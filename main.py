@@ -29,7 +29,7 @@ def init_wandb():
 
 
 if __name__ == "__main__":
-    model = MyEncoder(k=3, in_channels=21, out_channels=100)
+    model = MyEncoder(k=3, in_channels=21)
     device = torch.device("cuda:0")
 
     if use_wandb:
