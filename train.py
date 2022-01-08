@@ -35,7 +35,7 @@ def train(
                     # acc = acc.view(-1).cpu().item()
                     # print("acc: ", acc)
                     print("loss" + str(tot_loss / eval_per_step))
-                    print("acc: %.8f"%ac2.cpu().item())
+                    print("acc: %.8f" % ac2.cpu().item())
                     if use_wandb:
                         wandb.log(
                             {"train/train-acc": ac2}

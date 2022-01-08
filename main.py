@@ -36,10 +36,10 @@ if __name__ == "__main__":
         init_wandb()
 
     model = model.to(device)
-    #model.load_state_dict(torch.load("./saved_models/larger_batch/10.pth"))
+    # model.load_state_dict(torch.load("./saved_models/larger_batch/10.pth"))
     train_set = TrainerDataset(k=3, npair=128)
     eval_set = EvalDataset(k=3, npair=128)
-    #train_set = FtDataset(k=3, npair=62)
+    # train_set = FtDataset(k=3, npair=62)
     # eval_set = MyDataset(evnames, evlines)
 
     train_loader = DataLoader(dataset=train_set, batch_size=TRBATCHSZ, shuffle=False)

@@ -15,14 +15,20 @@ if __name__ == "__main__":
 
     model = model.to(device)
     model.load_state_dict(torch.load("./saved_models/cont/0.pth"))
-    train_set = OriginDataset('./testset.csv')
+    train_set = OriginDataset("./testset.csv")
     batch_converter = BatchConverter()
-    train_loader = DataLoader(dataset=train_set, batch_size=TRBATCHSZ, shuffle=False, collate_fn=batch_converter)
+    train_loader = DataLoader(
+        dataset=train_set,
+        batch_size=TRBATCHSZ,
+        shuffle=False,
+        collate_fn=batch_converter,
+    )
     label, data, lens = iter(train_loader).next()
     res = model.gen_ebd(data.cuda(), lens)
-    rate_mx = dot_product_scores(res, res).cpu() #/ torch.tensor(lens).float().unsqueeze(0)
+    rate_mx = dot_product_scores(
+        res, res
+    ).cpu()  # / torch.tensor(lens).float().unsqueeze(0)
     print(res.cpu())
     print(rate_mx)
     print(label)
     print(lens)
-
