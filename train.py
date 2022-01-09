@@ -20,13 +20,21 @@ def train(
     for epoch in range(n_epoches):
         print("epoch " + str(epoch + 1))
         tot_loss = 0
-
         model.train()
 
         for cnt, toks in enumerate(train_loader, start=1):
             toks = toks.squeeze(0)
             toks = toks.cuda(non_blocking=True)
-
+            model.train()
+            if cnt % acc_step == 0:
+                optimizer.zero_grad()
+                loss = model.get_loss(model(toks))
+                tot_loss += loss.detach().cpu().item()
+                loss.backward()
+                optimizer.step()
+            else:
+                loss = model.get_loss(model(toks))
+                loss.backward()
             if cnt % eval_per_step == 0:
                 if cnt % (eval_per_step * 1) == 0:
                     # acc = evaluate(model, eval_loader, threshold)
@@ -41,17 +49,7 @@ def train(
                             {"train/train-acc": ac2}
                         )  # , "train/eval-acc": acc,"train/loss": tot_loss/eval_per_step})
                     tot_loss = 0
-                model.train()
 
-            if cnt % acc_step == 0:
-                optimizer.zero_grad()
-                loss = model.get_loss(model(toks))
-                tot_loss += loss.detach().cpu().item()
-                loss.backward()
-                optimizer.step()
-            else:
-                loss = model.get_loss(model(toks))
-                loss.backward()
         save(model, epoch)
 
 

@@ -1,5 +1,4 @@
 import wandb
-import esm
 import torch
 from torch.optim import AdamW, lr_scheduler
 from torch.utils.data import DataLoader
@@ -59,5 +58,5 @@ if __name__ == "__main__":
         eval_per_step=eval_per_step,
         use_wandb=use_wandb,
         device=device,
-        acc_step=4,
+        acc_step=1,
     )

@@ -163,7 +163,7 @@ class BatchConverter(object):
         arg_idx = sorted(range(len(lst_seq)), key=lambda x: len(lst_seq[x]))
         lst_label = torch.tensor([lst_label[i] for i in arg_idx])
         lst_seq = [lst_seq[i] for i in arg_idx]
-        lst_len = [len(lst_seq[i]) for i in arg_idx]
+        lst_len = [len(lst_seq[i]) for i in range(len(arg_idx))]
         lst_trans = [translator(i, self.alphabet) for i in lst_seq]
         data = pad_sequence(lst_trans, batch_first=True, padding_value=0)
         return lst_label, data.permute(0, 2, 1).float(), lst_len
